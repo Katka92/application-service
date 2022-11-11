@@ -20,6 +20,7 @@ require (
 	github.com/openshift/api v0.0.0-20210503193030-25175d9d392d
 	github.com/pact-foundation/pact-go v1.0.4
 	github.com/redhat-appstudio/application-api v0.0.0-20221108172336-c9e003808d1f
+	github.com/redhat-appstudio/managed-gitops/appstudio-shared v0.0.0-20221108162712-4bd281ad1fb2
 	github.com/redhat-appstudio/service-provider-integration-scm-file-retriever v0.6.10
 	github.com/redhat-developer/alizer/go v0.0.0-20220704150640-ef50ead0b279
 	github.com/redhat-developer/gitops-generator v0.0.0-20221026163641-76ad94f921b3
@@ -90,6 +91,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
+	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/imroc/req v0.3.2 // indirect
 	github.com/jenkins-x/go-scm v1.10.10 // indirect
