@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"go/build"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	"github.com/pact-foundation/pact-go/dsl"
@@ -19,6 +21,8 @@ import (
 	"github.com/redhat-appstudio/application-service/pkg/util/ioutils"
 
 	"github.com/redhat-developer/gitops-generator/pkg/testutils"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/klog"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -62,7 +66,7 @@ func TestContracts(t *testing.T) {
 	}
 	// End of certificate magic
 
-	var pactDir = "/home/rhopp/Downloads"
+	var pactDir = "/home/katka/hac/hac-dev/pact/pacts"
 	_, err = pact.VerifyProvider(t, pactTypes.VerifyRequest{
 		ProviderBaseURL: testEnv.Config.Host,
 		PactURLs:        []string{filepath.ToSlash(fmt.Sprintf("%s/hacdev-has.json", pactDir))},
@@ -73,7 +77,98 @@ func TestContracts(t *testing.T) {
 			"No app with the name myapp in the default namespace exists.": func() error {
 				return nil
 			},
+			"App myapp exists and has component nodejsss and java-springboot-sample": func() error {
+				appName := "myapp"
+				HASAppNamespace := "default"
+				compName1 := "nodejsss"
+				sampleRepoLink1 := "https://github.com/devfile-samples/devfile-sample-java-springboot-basic"
+
+				hasApp := &appstudiov1alpha1.Application{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "appstudio.redhat.com/v1alpha1",
+						Kind:       "Application",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      appName,
+						Namespace: HASAppNamespace,
+					},
+					Spec: appstudiov1alpha1.ApplicationSpec{
+						DisplayName: appName,
+						Description: "Some description",
+					},
+				}
+				hasComp1 := &appstudiov1alpha1.Component{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "appstudio.redhat.com/v1alpha1",
+						Kind:       "Component",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      compName1,
+						Namespace: HASAppNamespace,
+					},
+					Spec: appstudiov1alpha1.ComponentSpec{
+						ComponentName: compName1,
+						Application:   appName,
+						Source: appstudiov1alpha1.ComponentSource{
+							ComponentSourceUnion: appstudiov1alpha1.ComponentSourceUnion{
+								GitSource: &appstudiov1alpha1.GitSource{
+									URL: sampleRepoLink1,
+								},
+							},
+						},
+					},
+				}
+
+				k8sClient.Create(ctx, hasApp)
+				hasAppLookupKey := types.NamespacedName{Name: appName, Namespace: HASAppNamespace}
+				createdHasApp := &appstudiov1alpha1.Application{}
+				fmt.Println("Checking app created")
+				for i := 0; i < 12; i++ {
+					fmt.Println("In for")
+					k8sClient.Get(context.Background(), hasAppLookupKey, createdHasApp)
+					if len(createdHasApp.Status.Conditions) > 0 {
+						if createdHasApp.Status.Conditions[0].Type == "Created" {
+							break
+						}
+					}
+					time.Sleep(10000)
+				}
+
+				k8sClient.Create(ctx, hasComp1)
+				hasCompLookupKey := types.NamespacedName{Name: compName1, Namespace: HASAppNamespace}
+				createdHasComp := &appstudiov1alpha1.Component{}
+				fmt.Println("Checking comp created")
+				for i := 0; i < 12; i++ {
+					fmt.Println("In for")
+					k8sClient.Get(context.Background(), hasCompLookupKey, createdHasComp)
+					if len(createdHasComp.Status.Conditions) > 1 {
+						fmt.Println("Comp: ", createdHasComp)
+						break
+					}
+					time.Sleep(10000)
+				}
+				fmt.Println("Comp: ", createdHasComp)
+
+				fmt.Println("Checking app containing component")
+				for i := 0; i < 12; i++ {
+					fmt.Println("In for")
+					k8sClient.Get(context.Background(), hasAppLookupKey, createdHasApp)
+					if len(createdHasApp.Status.Conditions) > 0 && strings.Contains(createdHasApp.Status.Devfile, compName1) {
+						fmt.Println("App: ", createdHasApp.Status.Devfile)
+						break
+					}
+					time.Sleep(10000)
+				}
+				fmt.Println("App devfile: ")
+				fmt.Println(createdHasApp.Status.Devfile)
+				return nil
+			},
 		},
+		// AfterEach: func() error {
+		// 	//Remove all applications after each tests
+		// 	k8sClient.DeleteAllOf(context.Background(), &appstudiov1alpha1.Application{}, client.InNamespace("default"))
+		// 	return nil
+		// },
 		CustomTLSConfig:            tlsConfig,
 		Verbose:                    true,
 		PublishVerificationResults: true,

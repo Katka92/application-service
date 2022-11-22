@@ -18,9 +18,8 @@ require (
 	github.com/onsi/gomega v1.20.1
 	github.com/openshift-pipelines/pipelines-as-code v0.0.0-20220622161720-2a6007e17200
 	github.com/openshift/api v0.0.0-20210503193030-25175d9d392d
-	github.com/pact-foundation/pact-go v1.0.4
+	github.com/pact-foundation/pact-go v1.7.0
 	github.com/redhat-appstudio/application-api v0.0.0-20221108172336-c9e003808d1f
-	github.com/redhat-appstudio/managed-gitops/appstudio-shared v0.0.0-20221108162712-4bd281ad1fb2
 	github.com/redhat-appstudio/service-provider-integration-scm-file-retriever v0.6.10
 	github.com/redhat-developer/alizer/go v0.0.0-20220704150640-ef50ead0b279
 	github.com/redhat-developer/gitops-generator v0.0.0-20221026163641-76ad94f921b3
@@ -33,6 +32,7 @@ require (
 	k8s.io/api v0.24.3
 	k8s.io/apimachinery v0.24.3
 	k8s.io/client-go v0.24.3
+	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/yaml v1.3.0
 
@@ -90,10 +90,11 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/go-version v1.4.0 // indirect
+	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/imroc/req v0.3.2 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jenkins-x/go-scm v1.10.10 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -125,6 +126,7 @@ require (
 	github.com/shurcooL/githubv4 v0.0.0-20190718010115-4ba037080260 // indirect
 	github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
@@ -155,7 +157,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.24.3 // indirect
 	k8s.io/component-base v0.24.3 // indirect
-	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.70.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect
