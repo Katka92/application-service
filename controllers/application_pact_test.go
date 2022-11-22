@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"go/build"
 	"path/filepath"
-	"strings"
 	"testing"
-	"time"
 
+	"github.com/devfile/library/pkg/devfile/parser/data/v2/common"
 	. "github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 	"github.com/pact-foundation/pact-go/dsl"
 	pactTypes "github.com/pact-foundation/pact-go/types"
 	appstudiov1alpha1 "github.com/redhat-appstudio/application-api/api/v1alpha1"
@@ -33,7 +33,7 @@ import (
 )
 
 var (
-	// g       *gomega.WithT
+	g *gomega.WithT
 	// k8sClient client.Client
 	cancel1 context.CancelFunc
 	// myTestEnv *envtest.Environment
@@ -41,7 +41,7 @@ var (
 )
 
 func TestContracts(t *testing.T) {
-	// g = gomega.NewGomegaWithT(t)
+	g = gomega.NewGomegaWithT(t)
 
 	err := setuptestEnv(t)
 	if err != nil {
@@ -66,7 +66,7 @@ func TestContracts(t *testing.T) {
 	}
 	// End of certificate magic
 
-	var pactDir = "/home/katka/hac/hac-dev/pact/pacts"
+	var pactDir = "/home/rhopp/Downloads"
 	_, err = pact.VerifyProvider(t, pactTypes.VerifyRequest{
 		ProviderBaseURL: testEnv.Config.Host,
 		PactURLs:        []string{filepath.ToSlash(fmt.Sprintf("%s/hacdev-has.json", pactDir))},
@@ -119,46 +119,44 @@ func TestContracts(t *testing.T) {
 					},
 				}
 
+				//create app and wait
 				k8sClient.Create(ctx, hasApp)
 				hasAppLookupKey := types.NamespacedName{Name: appName, Namespace: HASAppNamespace}
 				createdHasApp := &appstudiov1alpha1.Application{}
-				fmt.Println("Checking app created")
-				for i := 0; i < 12; i++ {
-					fmt.Println("In for")
+				g.Eventually(func() string {
 					k8sClient.Get(context.Background(), hasAppLookupKey, createdHasApp)
 					if len(createdHasApp.Status.Conditions) > 0 {
-						if createdHasApp.Status.Conditions[0].Type == "Created" {
-							break
-						}
+						return createdHasApp.Status.Conditions[0].Type
 					}
-					time.Sleep(10000)
-				}
+					return ""
+				}, timeout, interval).Should(gomega.Equal("Created"))
 
+				//create component and wait
 				k8sClient.Create(ctx, hasComp1)
 				hasCompLookupKey := types.NamespacedName{Name: compName1, Namespace: HASAppNamespace}
 				createdHasComp := &appstudiov1alpha1.Component{}
-				fmt.Println("Checking comp created")
-				for i := 0; i < 12; i++ {
-					fmt.Println("In for")
+				g.Eventually(func() bool {
 					k8sClient.Get(context.Background(), hasCompLookupKey, createdHasComp)
-					if len(createdHasComp.Status.Conditions) > 1 {
-						fmt.Println("Comp: ", createdHasComp)
-						break
-					}
-					time.Sleep(10000)
-				}
+					return len(createdHasComp.Status.Conditions) > 1
+				}, timeout, interval).Should(gomega.BeTrue())
 				fmt.Println("Comp: ", createdHasComp)
 
+				//wait for the component's Project to appear in Application
 				fmt.Println("Checking app containing component")
-				for i := 0; i < 12; i++ {
-					fmt.Println("In for")
+				g.Eventually(func() bool {
 					k8sClient.Get(context.Background(), hasAppLookupKey, createdHasApp)
-					if len(createdHasApp.Status.Conditions) > 0 && strings.Contains(createdHasApp.Status.Devfile, compName1) {
-						fmt.Println("App: ", createdHasApp.Status.Devfile)
-						break
+					devfileData, err := devfile.ParseDevfileModel(createdHasApp.Status.Devfile)
+					if err != nil {
+						fmt.Printf("Error unmarshaling devfile: %+v", err)
+						return false
 					}
-					time.Sleep(10000)
-				}
+					projects, err := devfileData.GetProjects(common.DevfileOptions{})
+					if err != nil {
+						fmt.Printf("Error unmarshaling devfile: %+v", err)
+						return false
+					}
+					return len(projects) > 0
+				}, timeout, interval).Should(gomega.BeTrue())
 				fmt.Println("App devfile: ")
 				fmt.Println(createdHasApp.Status.Devfile)
 				return nil

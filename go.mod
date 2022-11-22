@@ -94,7 +94,6 @@ require (
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/imroc/req v0.3.2 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jenkins-x/go-scm v1.10.10 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
