@@ -1,0 +1,18 @@
+name: Publish Pact results
+
+on:
+  push:
+    branches: [ test ]
+
+jobs:
+  pact:
+    name: Push pact tests results
+    runs-on: ubuntu-latest
+    env: 
+      COMMIT_SHA: ${{ github.event.head }}
+      PR_CHECK: true
+      OPERATOR_SDK_VERSION: v1.14.0
+    steps:
+      - name: Test vars
+        run: |
+          echo "COMMIT_SHA: $COMMIT_SHA"
