@@ -11,7 +11,7 @@ jobs:
     env: 
       COMMIT_SHA: ${{ github.event.payload.head }}
       COMMIT_SHAA: ${{ github.head }}
-      GITHUB: ${{ github }}
+      GITHUB: ${{ github.event }}
       PR_CHECK: true
       OPERATOR_SDK_VERSION: v1.14.0
     steps:
