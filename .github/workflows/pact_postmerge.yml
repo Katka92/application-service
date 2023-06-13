@@ -6,7 +6,7 @@ on:
 
 jobs:
   pact:
-    name: Pact tests
+    name: Push Pact tests after merge
     runs-on: ubuntu-latest
     env: 
       PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -55,6 +55,9 @@ jobs:
           wget -qO- https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.92.0/pact-1.92.0-linux-x86_64.tar.gz | tar xz --one-top-level=./pactcli
           PATH=${PATH}:$(pwd)/pactcli/pact/bin
           git status
+          COMMIT=$(git rev-parse --short HEAD)
+          echo $COMMIT
+          git checkout main
           COMMIT=$(git rev-parse --short HEAD)
           echo $COMMIT
           # make pact
