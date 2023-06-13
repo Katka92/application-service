@@ -6,14 +6,55 @@ on:
 
 jobs:
   pact:
-    name: Push pact tests results
+    name: Pact tests
     runs-on: ubuntu-latest
     env: 
-      COMMIT_SHAA: ${{ github.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
       PR_CHECK: true
       OPERATOR_SDK_VERSION: v1.14.0
     steps:
-      - name: Test vars
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache Operator SDK ${{ env.OPERATOR_SDK_VERSION }}
+        uses: actions/cache@v2
+        id: cache-operator-sdk
+        with:
+          path: ~/cache
+          key: operator-sdk-${{ env.OPERATOR_SDK_VERSION }}
+      - name: Download Operator SDK ${{ env.OPERATOR_SDK_VERSION }}
+        if: steps.cache-operator-sdk.outputs.cache-hit != 'true'
         run: |
-          echo "COMMIT_SHA: $COMMIT_SHA"
-          echo "payload: ${{ github.event.payload.head }}"
+          mkdir -p ~/cache
+          wget https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk_linux_amd64 -O ~/cache/operator-sdk-${OPERATOR_SDK_VERSION} > /dev/null -O ~/cache/operator-sdk-${OPERATOR_SDK_VERSION} > /dev/null
+          chmod +x ~/cache/operator-sdk-${OPERATOR_SDK_VERSION}
+      - name: Install Operator SDK ${{ env.OPERATOR_SDK_VERSION }}
+        run: |
+          mkdir -p ~/bin
+          cp ~/cache/operator-sdk-${OPERATOR_SDK_VERSION} ~/bin/operator-sdk
+          echo "$HOME/bin" >> $GITHUB_PATH
+      - name: Cache go modules
+        id: cache-mod
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Download dependencies
+        run: go mod download
+        if: steps.cache-mod.outputs.cache-hit != 'true'
+      - name: Test Pact contracts
+        run: |
+          wget -qO- https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.92.0/pact-1.92.0-linux-x86_64.tar.gz | tar xz --one-top-level=./pactcli
+          PATH=${PATH}:$(pwd)/pactcli/pact/bin
+          git status
+          COMMIT=$(git rev-parse --short HEAD)
+          echo $COMMIT
+          # make pact
