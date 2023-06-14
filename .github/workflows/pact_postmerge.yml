@@ -6,7 +6,6 @@ on:
 
 jobs:
   pact:
-    name: Push Pact tests after merge
     runs-on: ubuntu-latest
     env: 
       OPERATOR_SDK_VERSION: v1.14.0
@@ -49,6 +48,7 @@ jobs:
         run: go mod download
         if: steps.cache-mod.outputs.cache-hit != 'true'
       - name: Test Pact contracts
+        shell: bash
         env:
           PACT_BROKER_PASSWORD: $ {{ secrets.PACT_BROKER_PASSWORD }}
           PACT_BROKER_USERNAME: $ {{ secrets.PACT_BROKER_USERNAME }}
