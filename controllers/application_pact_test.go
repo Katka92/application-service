@@ -35,7 +35,8 @@ func TestContracts(t *testing.T) {
 	// setup default variables for tests
 	HASAppNamespace := "default"
 
-	fmt.Println("COMMIT_SHA: ", os.Getenv("COMMIT_SHA"))
+	t.Log("COMMIT_SHA: ", os.Getenv("COMMIT_SHA"))
+	t.Log("USERNAME ", os.Getenv("PACT_BROKER_USERNAME"))
 	// setup default variables for Pact
 	verifyRequest := pactTypes.VerifyRequest{
 		// Default selector should include environments, but as they are not in place yet, using just main branch
