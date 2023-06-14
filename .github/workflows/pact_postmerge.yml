@@ -9,9 +9,8 @@ jobs:
     name: Push Pact tests after merge
     runs-on: ubuntu-latest
     env: 
-      PR_NUMBER: ${{ github.event.pull_request.number }}
-      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
       OPERATOR_SDK_VERSION: v1.14.0
+      PROVIDER_BRANCH: "main"
       PACT_BROKER_PASSWORD: $ {{ secrets.PACT_BROKER_PASSWORD }}
       PACT_BROKER_USERNAME: $ {{ secrets.PACT_BROKER_USERNAME }}
     steps:
@@ -56,7 +55,11 @@ jobs:
           wget -qO- https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.92.0/pact-1.92.0-linux-x86_64.tar.gz | tar xz --one-top-level=./pactcli
           PATH=${PATH}:$(pwd)/pactcli/pact/bin
           git checkout main
-          COMMIT=$(git rev-parse --short HEAD)
-          echo $COMMIT
+          
+          # Run Pact tests and publish results. Required variables to be set:
+          # COMMIT_SHA            sets the version
+          # PROVIDER_BRANCH       sets the branch tag
+          # PACT_BROKER_PASSWORD  login info with push rights
+          # PACT_BROKER_USERNAME  login info with push rights
+          COMMIT_SHA=$(git rev-parse --short HEAD)
           make pact
-
