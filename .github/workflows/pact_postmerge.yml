@@ -61,5 +61,5 @@ jobs:
           # PROVIDER_BRANCH       sets the branch tag
           # PACT_BROKER_PASSWORD  login info with push rights
           # PACT_BROKER_USERNAME  login info with push rights
-          COMMIT_SHA=$(git rev-parse --short HEAD)
+          export COMMIT_SHA=$(git rev-parse --short HEAD)
           make pact
