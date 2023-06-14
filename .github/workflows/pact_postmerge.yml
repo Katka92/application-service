@@ -11,8 +11,6 @@ jobs:
     env: 
       OPERATOR_SDK_VERSION: v1.14.0
       PROVIDER_BRANCH: "main"
-      PACT_BROKER_PASSWORD: $ {{ secrets.PACT_BROKER_PASSWORD }}
-      PACT_BROKER_USERNAME: $ {{ secrets.PACT_BROKER_USERNAME }}
     steps:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
@@ -51,6 +49,9 @@ jobs:
         run: go mod download
         if: steps.cache-mod.outputs.cache-hit != 'true'
       - name: Test Pact contracts
+        env:
+          PACT_BROKER_PASSWORD: $ {{ secrets.PACT_BROKER_PASSWORD }}
+          PACT_BROKER_USERNAME: $ {{ secrets.PACT_BROKER_USERNAME }}
         run: |
           wget -qO- https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.92.0/pact-1.92.0-linux-x86_64.tar.gz | tar xz --one-top-level=./pactcli
           PATH=${PATH}:$(pwd)/pactcli/pact/bin
