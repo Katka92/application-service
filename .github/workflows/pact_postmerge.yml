@@ -63,4 +63,5 @@ jobs:
           # PACT_BROKER_PASSWORD  login info with push rights
           # PACT_BROKER_USERNAME  login info with push rights
           export COMMIT_SHA=$(git rev-parse --short HEAD)
+          echo ${PACT_BROKER_USERNAME:0:3} 
           make pact
