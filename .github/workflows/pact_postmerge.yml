@@ -50,8 +50,8 @@ jobs:
       - name: Test Pact contracts
         shell: bash
         env:
-          PACT_BROKER_PASSWORD: $ {{ secrets.PACT_BROKER_PASSWORD }}
-          PACT_BROKER_USERNAME: $ {{ secrets.PACT_BROKER_USERNAME }}
+          PACT_BROKER_PASSWORD: ${{ secrets.PACT_BROKER_PASSWORD }}
+          PACT_BROKER_USERNAME: ${{ secrets.PACT_BROKER_USERNAME }}
         run: |
           wget -qO- https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.92.0/pact-1.92.0-linux-x86_64.tar.gz | tar xz --one-top-level=./pactcli
           PATH=${PATH}:$(pwd)/pactcli/pact/bin
